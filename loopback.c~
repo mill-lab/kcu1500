@@ -1,0 +1,27 @@
+
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main(){
+  int fd_w = open("/dev/xdma0_h2c_0", O_WRONLY);
+  int fd_r = open("/dev/xdma0_c2h_0", O_RDONLY);
+
+  int tx[10], rx[10];
+
+  for (int i=0; i<10; i++){
+    tx[i] = i;
+    rx[i] = 9999;
+  }
+  
+  write(fd_w, tx, 40);
+  read(fd_r, rx, 40);
+
+  for (int i=0; i<10; i++){
+    printf("%d %d \n", tx[i], rx[i]);
+  }
+  
+  return 0;
+}

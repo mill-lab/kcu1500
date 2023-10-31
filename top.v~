@@ -1,0 +1,40 @@
+`default_nettype none
+module top
+  (input wire RST, CLK,
+   input wire );
+
+   design_1_wrapper wrap (.M_AXIS_0_tdata(),
+			  .M_AXIS_0_tkeep(),
+			  .M_AXIS_0_tlast(),
+			  .M_AXIS_0_tready(),
+			  .M_AXIS_0_tvalid(),
+			  .S_AXIS_0_tdata(),
+			  .S_AXIS_0_tkeep(),
+			  .S_AXIS_0_tlast(),
+			  .S_AXIS_0_tready(),
+			  .S_AXIS_0_tvalid(),
+			  .pci_express_x8_rxn(),
+			  .pci_express_x8_rxp(),
+			  .pci_express_x8_txn(),
+			  .pci_express_x8_txp(),
+			  .pcie_perstn(),
+			  .pcie_refclk_clk_n(),
+			  .pcie_refclk_clk_p());
+
+   ila_0 ila (.clk(CLK),
+	      .probe0());
+
+   reg	      TDATA_R;
+   reg	      TREADY_R, TVALID_R;
+
+   always @ (posedge CLK) begin
+      if (RST) begin
+	 TDATA_R <= 0;
+	 TREADY_R <= 0;
+	 TVALID_R <= 0;
+      end else begin
+	 { TDATA_R, TREADY_R, TVALID_R } <= { TDATA, TREADY, TVALID };
+      end
+   end
+   
+`default_nettype wire
