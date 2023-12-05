@@ -1,0 +1,112 @@
+`default_nettype none
+module top
+  (input wire        pcie_perstn, 
+   input wire	     pcie_refclk_clk_n,
+   input wire	     pcie_refclk_clk_p,
+   input wire [7:0]  pci_express_x8_rxn,
+   input wire [7:0]  pci_express_x8_rxp,
+   output wire [7:0] pci_express_x8_txn,
+   output wire [7:0] pci_express_x8_txp);
+
+   wire [511:0]	     M_AXIS_0_tdata;
+   wire [63:0]	     M_AXIS_0_tkeep;
+   wire		     M_AXIS_0_tlast;
+   wire		     M_AXIS_0_tready;
+   wire		     M_AXIS_0_tvalid;
+   wire [511:0]	     S_AXIS_0_tdata;
+   wire [63:0]	     S_AXIS_0_tkeep;
+   wire		     S_AXIS_0_tlast;
+   wire		     S_AXIS_0_tready;
+   wire		     S_AXIS_0_tvalid;
+   wire		     axi_aclk_0;
+   wire		     axi_aresetn_0;
+
+   wire [7:0][63:0]  D;
+   wire		     D_VALID;
+   wire		     D_BP;
+   wire [3:0][7:0][63:0] Q;
+   wire [3:0]		 Q_VALID;
+   wire [3:0]		 Q_BP;
+   wire [3:0]		 Q_EOF;
+
+   design_xdma512 design_xdma512_i
+     (.M_AXIS_0_tdata(M_AXIS_0_tdata),
+      .M_AXIS_0_tkeep(M_AXIS_0_tkeep),
+      .M_AXIS_0_tlast(M_AXIS_0_tlast),
+      .M_AXIS_0_tready(M_AXIS_0_tready),
+      .M_AXIS_0_tvalid(M_AXIS_0_tvalid),
+      .S_AXIS_0_tdata(S_AXIS_0_tdata),
+      .S_AXIS_0_tkeep(S_AXIS_0_tkeep),
+      .S_AXIS_0_tlast(S_AXIS_0_tlast),
+      .S_AXIS_0_tready(S_AXIS_0_tready),
+      .S_AXIS_0_tvalid(S_AXIS_0_tvalid),
+      .axi_aclk_0(axi_aclk_0),
+      .axi_aresetn_0(axi_aresetn_0),
+      .pci_express_x8_rxn(pci_express_x8_rxn),
+      .pci_express_x8_rxp(pci_express_x8_rxp),
+      .pci_express_x8_txn(pci_express_x8_txn),
+      .pci_express_x8_txp(pci_express_x8_txp),
+      .pcie_perstn(pcie_perstn),
+      .pcie_refclk_clk_n(pcie_refclk_clk_n),
+      .pcie_refclk_clk_p(pcie_refclk_clk_p));
+   
+   axis2port a2p (.RST(~axi_aresetn_0),
+		  .CLK(axi_aclk_0),
+		  .S_AXIS_TVALID(M_AXIS_0_tvalid),
+		  .S_AXIS_TLAST(M_AXIS_0_tlast),
+		  .S_AXIS_TDATA(M_AXIS_0_tdata),
+		  .S_AXIS_TREADY(M_AXIS_0_tready),
+		  .Q(D),
+		  .Q_VALID(D_VALID),
+		  .Q_BP(D_BP));
+   
+   routex #(.PassThrough(4'b0)) rx (.RST(~axi_aresetn_0),
+				    .CLK(axi_aclk_0),
+				    .D(D),
+				    .D_VALID(D_VALID),
+				    .D_BP(D_BP),
+				    .Q(Q),
+				    .Q_VALID(Q_VALID),
+				    .Q_BP(Q_BP),
+				    .Q_SOF(),
+				    .Q_EOF(Q_EOF));
+
+   port2axis p2a (.RST(~axi_aresetn_0),
+		  .CLK(axi_aclk_0),
+		  .D(Q[0]),
+		  .D_VALID(Q_VALID[0]),
+		  .D_BP(Q_BP[0]),
+		  .D_EOF(Q_EOF[0]),
+		  .M_AXIS_TVALID(S_AXIS_0_tvalid),
+		  .M_AXIS_TLAST(S_AXIS_0_tlast),
+		  .M_AXIS_TDATA(S_AXIS_0_tdata),
+		  .M_AXIS_TREADY(S_AXIS_0_tready));
+   
+   reg [511:0]		 TDATA_R;
+   reg [63:0]		 TKEEP_R;
+   reg			 TREADY_R, TVALID_R, TLAST_R;
+
+   ila_0 ilas (.clk(axi_aclk_0),
+	      .probe0({S_AXIS_0_tready, S_AXIS_0_tvalid, S_AXIS_0_tlast}),
+	      .probe1({S_AXIS_0_tdata, S_AXIS_0_tkeep}) );
+
+   ila_0 ilaa2p (.clk(axi_aclk_0),
+	      .probe0({D_VALID, D_BP}),
+	      .probe1({D}) );
+
+   ila_0 ilap2a (.clk(axi_aclk_0),
+	      .probe0({Q_VALID, Q_BP}),
+	      .probe1({Q}) );
+
+   ila_0 ilam (.clk(axi_aclk_0),
+	      .probe0({M_AXIS_0_tready, M_AXIS_0_tvalid, M_AXIS_0_tlast}),
+	      .probe1({M_AXIS_0_tdata, M_AXIS_0_tkeep}) );
+   
+   always @ (posedge axi_aclk_0) begin
+      { TDATA_R, TKEEP_R, TREADY_R, TVALID_R, TLAST_R } <= { M_AXIS_0_tdata, M_AXIS_0_tkeep, M_AXIS_0_tready, M_AXIS_0_tvalid, M_AXIS_0_tlast };
+   end
+
+   assign S_AXIS_0_tkeep = 64'hffff_ffff_ffff_ffff;
+endmodule
+
+`default_nettype wire

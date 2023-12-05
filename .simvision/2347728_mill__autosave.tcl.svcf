@@ -1,0 +1,187 @@
+
+#
+# Preferences
+#
+preferences set plugin-enable-svdatabrowser-new 1
+preferences set toolbar-Standard-WaveWindow {
+  usual
+  position -pos 1
+}
+preferences set plugin-enable-groupscope 0
+preferences set plugin-enable-interleaveandcompare 0
+preferences set plugin-enable-waveformfrequencyplot 0
+
+#
+# Databases
+#
+database require waves -search {
+	./waves.shm/waves.trn
+	/home/lab/mill/kcu1500/src/waves.shm/waves.trn
+}
+
+#
+# Mnemonic Maps
+#
+mmap new  -reuse -name {Boolean as Logic} -radix %b -contents {{%c=FALSE -edgepriority 1 -shape low}
+{%c=TRUE -edgepriority 1 -shape high}}
+mmap new  -reuse -name {Example Map} -radix %x -contents {{%b=11???? -bgcolor orange -label REG:%x -linecolor yellow -shape bus}
+{%x=1F -bgcolor red -label ERROR -linecolor white -shape EVENT}
+{%x=2C -bgcolor red -label ERROR -linecolor white -shape EVENT}
+{%x=* -label %x -linecolor gray -shape bus}}
+
+#
+# Waveform windows
+#
+if {[catch {window new WaveWindow -name "Waveform 1" -geometry 1782x922+-3841+2138}] != ""} {
+    window geometry "Waveform 1" 1782x922+-3841+2138
+}
+window target "Waveform 1" on
+waveform using {Waveform 1}
+waveform sidebar select designbrowser
+waveform set \
+    -primarycursor TimeA \
+    -signalnames name \
+    -signalwidth 175 \
+    -units ns \
+    -valuewidth 160
+waveform baseline set -time 0
+
+set id [waveform add -signals  {
+	waves::port2axis_tb.CLK
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.RST
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.S_AXIS_TDATA[7:0]}
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.S_AXIS_TVALID
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.S_AXIS_TLAST
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.S_AXIS_TREADY
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.D[7:0]}
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.D_VALID
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.Q[3:0]}
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.Q_VALID[3:0]}
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.Q_EOF[3:0]}
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.M_AXIS_TDATA[7:0]}
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.M_AXIS_TVALID
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.M_AXIS_TLAST
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.M_AXIS_TREADY
+	} ]
+set id [waveform add -cdivider divider]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.p2a.D[7:0]}
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.p2a.D_VALID
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.p2a.D_EOF
+	} ]
+
+waveform xview limits 1096.58ns 1532.765ns
+
+if {[catch {window new WaveWindow -name "Waveform 2" -geometry 1774x991+-1920+1080}] != ""} {
+    window geometry "Waveform 2" 1774x991+-1920+1080
+}
+waveform using {Waveform 2}
+waveform sidebar select designbrowser
+waveform set \
+    -primarycursor TimeA \
+    -signalnames name \
+    -signalwidth 175 \
+    -units ns \
+    -valuewidth 169
+waveform baseline set -time 0
+
+set id [waveform add -signals  {
+	waves::port2axis_tb.CLK
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.RST
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.S_AXIS_TDATA[7:0]}
+	} ]
+waveform hierarchy expand $id
+set id [waveform add -signals  {
+	waves::port2axis_tb.S_AXIS_TVALID
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.D[7:0]}
+	} ]
+waveform hierarchy expand $id
+set id [waveform add -signals  {
+	waves::port2axis_tb.D_VALID
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.Q[3:0]}
+	} ]
+waveform hierarchy expand $id
+set id [waveform add -signals  {
+	{waves::port2axis_tb.Q_VALID[3:0]}
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.Q_EOF[3:0]}
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.Q_BP[3:0]}
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.M_AXIS_TDATA[7:0]}
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.M_AXIS_TVALID
+	} ]
+set id [waveform add -signals  {
+	{waves::port2axis_tb.M_AXIS_TDATA[7:0]}
+	} ]
+waveform hierarchy expand $id
+set id [waveform add -signals  {
+	waves::port2axis_tb.M_AXIS_TVALID
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.M_AXIS_TLAST
+	} ]
+set id [waveform add -signals  {
+	waves::port2axis_tb.M_AXIS_TREADY
+	} ]
+
+waveform xview limits 1211.497ns 1616.831ns
+
+#
+# Waveform Window Links
+#
+
+#
+# Console windows
+#
+console set -windowname Console
+window geometry Console 600x250+0+0
+
+#
+# Layout selection
+#

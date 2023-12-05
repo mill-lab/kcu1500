@@ -13,12 +13,31 @@ int main(){
   if (fd_w < 0){ printf("open h2c failed\n"); return -1; }
   if (fd_r < 0){ printf("open c2h failed\n"); return -1; } 
  
-  int tx[num], rx[num];
+  long int tx[num], rx[num];
 
   for (int i=0; i<num; i++){
-    tx[i] = i+256;
+    tx[i] = i;
     rx[i] = 9999;
   }
+
+  /* tx[0] = 0x010000000000002; */
+  /* tx[1] = 0; */
+  /* tx[2] = 0; */
+  /* tx[3] = 0; */
+  /* tx[4] = 0; */
+  /* tx[5] = 0; */
+  /* tx[6] = 0; */
+  /* tx[7] = 5; */
+  
+  /* tx[8] = 1; */
+  /* tx[9] = 2; */
+  /* tx[10] = 3; */
+  /* tx[11] = 4; */
+  /* tx[12] = 5; */
+
+  /* for (int i=0; i<num; i++){ */
+  /*   rx[i] = 9999; */
+  /* } */
   
   int wrote = write(fd_w, tx, 4*num);
   printf("wrote %d\n", wrote);
@@ -27,7 +46,7 @@ int main(){
   printf("read %d\n", got);
 
   for (int i=0; i<num; i++){
-    printf("%d %d \n", tx[i], rx[i]);
+    printf("%ld %ld \n", tx[i], rx[i]);
   }
 
   close(fd_w);

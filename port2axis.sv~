@@ -87,10 +87,10 @@ endmodule // port2axis
 module axis2port
   ( input wire CLK, RST,
     input wire         S_AXIS_TVALID, S_AXIS_TLAST,
-    input wire [63:0]  S_AXIS_TDATA,
+    input wire [7:0][63:0]  S_AXIS_TDATA,
     output wire        S_AXIS_TREADY,
 
-    output wire [63:0] Q,
+    output wire [7:0][63:0] Q,
     output wire        Q_VALID,
     input wire         Q_BP
     );

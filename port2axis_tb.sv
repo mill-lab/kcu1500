@@ -1,0 +1,120 @@
+`timescale 1ns/1ps
+module port2axis_tb();
+   parameter STEP = 10;
+   reg RST, CLK;
+
+   
+   reg [7:0][63:0] S_AXIS_TDATA;
+   reg		   S_AXIS_TVALID, S_AXIS_TLAST;
+   wire		   S_AXIS_TREADY;
+   
+   wire [7:0][63:0] M_AXIS_TDATA;
+   wire		    M_AXIS_TVALID, M_AXIS_TLAST;
+   reg		    M_AXIS_TREADY;
+   
+   reg [63:0]	    CNT;
+
+   reg [7:0][63:0]  D;
+   reg		    D_VALID;
+   reg		    D_BP;
+   reg [3:0][7:0][63:0]	Q;
+   reg [3:0]		Q_VALID;
+   reg [3:0]		Q_BP;
+   reg [3:0]		Q_EOF;
+
+   axis2port a2p (.RST(RST),
+		  .CLK(CLK),
+		  .S_AXIS_TVALID(S_AXIS_TVALID),
+		  .S_AXIS_TLAST(S_AXIS_TLAST),
+		  .S_AXIS_TDATA(S_AXIS_TDATA),
+		  .S_AXIS_TREADY(S_AXIS_TREADY),
+		  .Q(D),
+		  .Q_VALID(D_VALID),
+		  .Q_BP(D_BP));
+   
+   routex #(.PassThrough(4'b0)) rx (.RST(RST),
+				    .CLK(CLK),
+				    .D(D),
+				    .D_VALID(D_VALID),
+				    .D_BP(D_BP),
+				    .Q(Q),
+				    .Q_VALID(Q_VALID),
+				    .Q_BP(Q_BP),
+				    .Q_SOF(),
+				    .Q_EOF(Q_EOF));
+
+   port2axis p2a (.RST(RST),
+		  .CLK(CLK),
+		  .D(Q[0]),
+		  .D_VALID(Q_VALID[0]),
+		  .D_BP(Q_BP[0]),
+		  .D_EOF(Q_EOF[0]),
+		  .M_AXIS_TVALID(M_AXIS_TVALID),
+		  .M_AXIS_TLAST(M_AXIS_TLAST),
+		  .M_AXIS_TDATA(M_AXIS_TDATA),
+		  .M_AXIS_TREADY(M_AXIS_TREADY));
+   
+   initial CLK <= 1;
+   always #(STEP/2) CLK <= ~CLK;
+
+   initial begin
+      $shm_open();
+      $shm_probe("ASM");
+
+      RST <= 1;
+      S_AXIS_TDATA <= 0;
+      S_AXIS_TVALID <= 0;
+      S_AXIS_TLAST <= 0;
+      M_AXIS_TREADY <= 0;
+
+      #(12.1*STEP)
+      RST <= 0;
+      
+      #(1000*STEP)
+      $finish;
+   end // initial begin
+
+   always @ (posedge CLK) begin
+      if (RST) begin
+	 CNT <= 0;
+      end else begin 
+	 CNT <= CNT + 1;
+	 case (CNT)
+	   101: begin
+	      S_AXIS_TDATA[0] <= {8'h1, 56'h1};
+	      S_AXIS_TDATA[1] <= 0;
+	      S_AXIS_TDATA[2] <= 0;
+	      S_AXIS_TDATA[3] <= 0;
+	      S_AXIS_TDATA[4] <= 0;
+	      S_AXIS_TDATA[5] <= 0;
+	      S_AXIS_TDATA[6] <= 0;
+	      S_AXIS_TDATA[7] <= 5;
+	      S_AXIS_TVALID <= 1;
+	      M_AXIS_TREADY <= 1;
+	   end // case: 101
+
+	   102: begin
+	      S_AXIS_TDATA[0] <= 1;
+	      S_AXIS_TDATA[1] <= 2;
+	      S_AXIS_TDATA[2] <= 3;
+	      S_AXIS_TDATA[3] <= 4;
+	      S_AXIS_TDATA[4] <= 5;
+	      S_AXIS_TDATA[5] <= 0;
+	      S_AXIS_TDATA[6] <= 0;
+	      S_AXIS_TDATA[7] <= 0;
+	      S_AXIS_TLAST <= 1;
+	   end
+
+	   104: begin
+	      S_AXIS_TDATA <= 0;
+	      S_AXIS_TVALID <= 0;
+	      S_AXIS_TLAST <= 0;
+	   end
+
+	   150: begin
+	      M_AXIS_TREADY <= 0;
+	   end
+	   endcase // case (CNT)
+      end
+   end // always @ (posedge CLK)
+endmodule
